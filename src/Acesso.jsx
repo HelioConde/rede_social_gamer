@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
@@ -13,7 +13,20 @@ function Acesso() {
         senha: '',
         acesso: true,
     });
+
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // Verificar se os cookies estão presentes
+        const userId = Cookies.get('userId');
+        const userToken = Cookies.get('userToken');
+
+        if (userId && userToken) {
+            // Redirecionar automaticamente para a página de início
+            navigate('/inicio');
+        }
+    }, []); // A dependência vazia significa que este efeito ocorre apenas uma vez, semelhante ao componentDidMount
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;

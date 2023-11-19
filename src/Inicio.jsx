@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
@@ -8,6 +9,10 @@ function Inicio() {
         token: Cookies.get('userToken'),
         home: true,
     });
+
+    const [amigos, setAmigos] = useState([]);
+
+    const navigate = useNavigate();
 
     const [latestVersion, setLatestVersion] = useState('');
     const [summonerData, setSummonerData] = useState({
@@ -34,28 +39,66 @@ function Inicio() {
                 summonerInfo: true,
             });
 
-            console.log('Resposta do PHP:', response.data);
+            console.log(response.data.error);
+            if (response.data.error === "Token inválido.") {
+                // Remover os tokens
+                Cookies.remove('userId');
+                Cookies.remove('userToken');
 
-            if (response.data) {
+                // Redirecionar para a página de login
+                navigate('/acesso');
+                return;
+            } else if (response.data) {
                 // Assuming your response structure is like { summonerData: {...} }
                 setSummonerData(response.data);
                 console.log('Updated summonerData:', response.data);
             } else {
                 // Handle errors if needed
+                console.log('Resposta do PHP:', response.data);
             }
         } catch (error) {
             console.error('Erro ao enviar dados:', error);
         }
     };
 
+    const listarAmigos = async () => {
+        try {
+            const response = await axios.post('http://localhost/api/data.php', {
+                ...formValues,
+                home: false,
+                listarAmigos: true,
+            });
+
+            if (response.data.amigos) {
+                // Atualizar o estado com a lista de amigos
+                setAmigos(response.data.amigos);
+                console.log('Lista de Amigos:', response.data.amigos);
+            } else {
+                console.log('Resposta do PHP:', response.data);
+            }
+        } catch (error) {
+            if (error.response) {
+                // O servidor respondeu com um status de erro
+                console.error('Erro na resposta do servidor:', error.response.data);
+            } else if (error.request) {
+                // A requisição foi feita, mas não houve resposta do servidor
+                console.error('Erro na requisição para o servidor:', error.request);
+            } else {
+                // Algo aconteceu durante a configuração da requisição que gerou um erro
+                console.error('Erro ao configurar a requisição:', error.message);
+            }
+        }
+    };
+
+    // Chama a função para listar amigos quando necessário
     useEffect(() => {
         fetchLatestVersion();
         fetchSummonerInfo();
+        listarAmigos();
     }, [formValues]);
 
     return (
         <>
-
             {summonerData.name && (
                 <div className='summonerInfo'>
                     <p className='summonerImg'>
@@ -73,6 +116,28 @@ function Inicio() {
                 </div>
             )}
 
+            <div>
+                <h2>Amigos</h2>
+                {amigos.length > 0 ? (
+                    <ul>
+                        {amigos.map((amigo) => (
+                            <li key={amigo.id}>
+                                <p className='summonerImg'>
+                                    <img
+                                        src={`http://ddragon.leagueoflegends.com/cdn/${latestVersion}/img/profileicon/${amigo.profileIconId}.png`}
+                                        alt="Profile Icon"
+                                    />
+                                    <span>{amigo.summonerLevel}</span>
+                                </p>
+                                <p>{amigo.name}</p>
+                                <p>Status: {amigo.status}</p>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>Não há amigos para mostrar.</p>
+                )}
+            </div>
         </>
     );
 }

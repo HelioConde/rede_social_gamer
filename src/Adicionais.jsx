@@ -11,7 +11,7 @@ function Registro() {
         id: Cookies.get('userId'),
         token: Cookies.get('userToken'),
         apelido: '',
-        adicionais: true,
+        adicionais: 'true',
     });
 
     const [summonerData, setSummonerData] = useState({
@@ -57,7 +57,7 @@ function Registro() {
 
         try {
             // Enviar dados para localhost/api/data.php
-            const response = await axios.post('http://localhost/api/data.php', formValues);
+            const response = await axios.post('http://localhost/api/data.php', { ...formValues, summonerConfirmed: 'false' });
 
             console.log('Resposta do PHP:', response.data);
             // Redirecionar para a próxima página se o envio for bem-sucedido
@@ -68,7 +68,7 @@ function Registro() {
                     summonerLevel: response.data.summonerLevel,
                 });
             }
-
+            
             if (response.data.success) {
                 navigate('/acesso');
             } else {

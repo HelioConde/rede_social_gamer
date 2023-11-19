@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Acesso from './Acesso';
 import Registro from './Registro';
 import Inicio from './Inicio';
@@ -12,10 +12,11 @@ function App() {
     <Provider store={store}>
       <Router>
         <Routes>
-          <Route path="/" element={<Inicio />} />
+          <Route path="/" element={<Acesso />} />
           <Route path="/acesso" element={<Acesso />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/adicionais" element={<Adicionais />} />
+          <Route path="/inicio" element={<Inicio />} />
           {/* Adicione outras rotas conforme necessário */}
         </Routes>
       </Router>

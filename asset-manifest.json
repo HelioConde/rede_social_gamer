@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/rede_social_gamer/static/css/main.754fc947.css",
-    "main.js": "/rede_social_gamer/static/js/main.dee2f8d9.js",
+    "main.js": "/rede_social_gamer/static/js/main.e0bc5fd9.js",
     "static/js/787.3431f837.chunk.js": "/rede_social_gamer/static/js/787.3431f837.chunk.js",
     "static/media/background.png": "/rede_social_gamer/static/media/background.b08bf22a4875ae75d327.png",
     "static/media/lol-logo.png": "/rede_social_gamer/static/media/lol-logo.dfbe52592e203edac5e4.png",
     "index.html": "/rede_social_gamer/index.html",
     "main.754fc947.css.map": "/rede_social_gamer/static/css/main.754fc947.css.map",
-    "main.dee2f8d9.js.map": "/rede_social_gamer/static/js/main.dee2f8d9.js.map",
+    "main.e0bc5fd9.js.map": "/rede_social_gamer/static/js/main.e0bc5fd9.js.map",
     "787.3431f837.chunk.js.map": "/rede_social_gamer/static/js/787.3431f837.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.754fc947.css",
-    "static/js/main.dee2f8d9.js"
+    "static/js/main.e0bc5fd9.js"
   ]
 }

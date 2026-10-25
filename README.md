@@ -1,27 +1,30 @@
+# GameSocial — Rede social gamer (protótipo)
 
-GameSocial
-Bem-vindo ao GameSocial, a sua rede social gamer que vai além dos limites do jogo! Conecte-se com seus amigos, compartilhe suas conquistas épicas e acompanhe o desempenho no seu jogo favorito. GameSocial integra-se à API oficial do jogo, proporcionando uma experiência única e personalizada para os jogadores.
+**Experimento de aplicação React para uma comunidade de jogadores, com foco em perfis, conexões e experiências sociais.**
 
-Recursos Principais
-1. Perfil Personalizado
-Crie um perfil que destaque suas conquistas, personagens favoritos e estatísticas de jogo. Personalize-o com temas e imagens de fundo exclusivos.
+![React](https://img.shields.io/badge/React-18-149ECA?logo=react&logoColor=white) ![Status](https://img.shields.io/badge/status-protótipo-64748b)
 
-2. Feed de Atividades
-Mantenha-se atualizado com as últimas atividades dos seus amigos. Veja conquistas desbloqueadas, níveis alcançados e destaque-se no feed com suas próprias proezas.
+## Visão do produto
 
-3. Estatísticas Detalhadas
-Acesse estatísticas detalhadas do seu desempenho no jogo. Acompanhe seu progresso, compare suas estatísticas com amigos e defina metas para melhorar.
+O conceito inclui perfis personalizáveis, feed de atividades, estatísticas de jogos e espaços para comunidades. Essas ideias representam **o objetivo do projeto** e não devem ser interpretadas como todas implementadas ou homologadas.
 
-4. Grupos e Comunidades
-Crie ou junte-se a grupos e comunidades dedicados ao seu jogo favorito. Compartilhe estratégias, organize eventos e encontre novos parceiros de jogo.
+## Como executar
 
-5. Integração com API Oficial do Jogo
-GameSocial utiliza a API oficial do jogo para fornecer informações precisas e em tempo real sobre seu desempenho. Esteja sempre atualizado com as últimas mudanças e eventos no jogo.
+```bash
+npm install
+npm start
+```
 
-Contribua
-Se você quiser contribuir para o desenvolvimento do RedeGamerSocial, fique à vontade para entrar em contato. Sua ajuda é bem-vinda!
+O código-fonte fica em `src/`, os assets em `public/` e os scripts seguem o padrão Create React App.
 
-Problemas e Sugestões
-Encontrou um bug ou tem uma ideia para melhorar o GameSocial? Abra uma issue e vamos trabalhar juntos para tornar esta plataforma ainda melhor.
+## Tecnologias
 
-Divirta-se conectando-se com outros jogadores e compartilhando suas jornadas épicas no mundo dos games! 🎮🚀
+React, React Router DOM, Redux, Axios, CSS e ferramentas de teste do ecossistema React.
+
+## Maturidade e próximos passos
+
+Projeto histórico em React 18, com dependências que precisam de revisão antes de uso moderno. Para retomar: inventariar as telas realmente operacionais, reforçar autenticação e privacidade, definir armazenamento de dados e adicionar testes E2E.
+
+**Atenção:** não publique informações de usuários, tokens ou credenciais de integrações sem validação de segurança.
+
+Criado por [Hélio Conde](https://github.com/HelioConde).

@@ -202,6 +202,39 @@ test('auditoria visual completa, erros JS e layout em todas as páginas', async 
     }
   }
 
+
+  // Capture the actual pop-up in both states. Fixed UI must fit inside viewport.
+  await page.goto('/inicio', { waitUntil:'domcontentloaded' });
+  await expect(page.getByRole('heading',{name:/Seu feed/})).toBeVisible();
+  await page.getByRole('button',{name:/Abrir mensagens/}).click();
+  for(const shot of [
+    {key:'chat-lista',label:'Mensagens',switchThread:false},
+    {key:'chat-conversa',label:'Conversa com Luna Pixel',switchThread:true}
+  ]){
+    const from=errors.length;
+    current=shot.key;
+    if(shot.switchThread)await page.locator('.chat-contact').filter({hasText:'Luna Pixel'}).click();
+    await expect(page.getByRole('dialog',{name:shot.label,exact:true})).toBeVisible();
+    const row={route:'/inicio',key:shot.key,theme:'dark',screenshot:shot.key+'.png',viewportScreenshot:shot.key+'-viewport.png',issues:[],errors:[],measurements:{}};
+    try{
+      const dims=await page.locator('.chat-window').evaluate(el=>{
+        const b=el.getBoundingClientRect();
+        return {x:b.left,right:b.right,y:b.top,bottom:b.bottom,viewportWidth:innerWidth,viewportHeight:innerHeight,scrollWidth:document.documentElement.scrollWidth};
+      });
+      row.measurements=dims;
+      if(dims.x<-1||dims.right>dims.viewportWidth+1||dims.y<-1||dims.bottom>dims.viewportHeight+1)
+        row.issues.push({type:'chat-fora-da-viewport',details:dims});
+      if(dims.scrollWidth>dims.viewportWidth+2) row.issues.push({type:'chat-overflow-horizontal',details:dims});
+    }catch(err){row.issues.push({type:'chat-renderizacao',details:String(err.message).slice(0,700)});}
+    try{await page.screenshot({path:join(folder,row.screenshot),fullPage:true,animations:'disabled'});}
+    catch(err){row.issues.push({type:'chat-captura-integral',details:String(err.message).slice(0,500)});}
+    try{await page.screenshot({path:join(folder,row.viewportScreenshot),fullPage:false,animations:'disabled'});}
+    catch(err){row.issues.push({type:'chat-captura-viewport',details:String(err.message).slice(0,500)});}
+    row.errors=errors.slice(from);
+    captures.push(row);
+  }
+  await page.getByRole('button',{name:'Fechar chat'}).click();
+
   const summary = {
     project, viewport: testInfo.project.use.viewport, date: new Date().toISOString(),
     captures, totalIssues: captures.reduce((n, x) => n + x.issues.length, 0),

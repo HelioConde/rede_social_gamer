@@ -19,6 +19,19 @@ db.exec(
   'CREATE TABLE IF NOT EXISTS blocks (user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, blocked_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, PRIMARY KEY(user_id,blocked_id));' +
   'CREATE TABLE IF NOT EXISTS media (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, filename TEXT NOT NULL, mime TEXT NOT NULL, created_at TEXT NOT NULL);'
 );
+
+db.exec(
+  'CREATE TABLE IF NOT EXISTS direct_messages ('+
+  'id TEXT PRIMARY KEY, '+
+  'sender_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, '+
+  'recipient_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, '+
+  'text TEXT NOT NULL, '+
+  'created_at TEXT NOT NULL, '+
+  'read_at TEXT, '+
+  'CHECK(sender_id != recipient_id));'+
+  'CREATE INDEX IF NOT EXISTS dm_sender_created ON direct_messages(sender_id,created_at);'+
+  'CREATE INDEX IF NOT EXISTS dm_recipient_created ON direct_messages(recipient_id,created_at);'
+);
 export const getUser = id => db.prepare('SELECT id,name,handle,bio,last_seen FROM users WHERE id=?').get(id);
 export function publicUser(user) {
   if(!user) return null;

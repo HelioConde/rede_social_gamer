@@ -98,6 +98,55 @@ async function handler(req,res){
     return json(res,200,{ok:true});
   }
   if(!uid)return denied(res);
+
+  // One-to-one conversations. Only sender/recipient can see a message.
+  // There is no simulated chat on the API: sending requires a real authenticated account.
+  const isBlocked=peerId=>!!db.prepare(
+    'SELECT 1 FROM blocks WHERE (user_id=? AND blocked_id=?) OR (user_id=? AND blocked_id=?) LIMIT 1'
+  ).get(uid,peerId,peerId,uid);
+  if(path==='/api/chats' && method==='GET'){
+    const rows=db.prepare('SELECT id,sender_id,recipient_id,text,created_at,read_at FROM direct_messages WHERE sender_id=? OR recipient_id=? ORDER BY created_at DESC, rowid DESC LIMIT 1000').all(uid,uid);
+    const map=new Map();
+    for(const row of rows){
+      const peerId=row.sender_id===uid?row.recipient_id:row.sender_id;
+      if(isBlocked(peerId))continue;
+      if(!map.has(peerId)){
+        const peer=publicUser(getUser(peerId));if(!peer)continue;
+        map.set(peerId,{peer,lastMessage:{id:row.id,from:row.sender_id,to:row.recipient_id,text:row.text,at:row.created_at,read:!!row.read_at},unreadCount:0});
+      }
+      if(row.recipient_id===uid&&!row.read_at)map.get(peerId).unreadCount++;
+    }
+    return json(res,200,{conversations:[...map.values()]});
+  }
+  const chatMatch=path.match(/^\/api\/chats\/([0-9a-f-]{36})\/(messages|read)$/);
+  if(chatMatch){
+    const peerId=chatMatch[1],operation=chatMatch[2];
+    if(peerId===uid||!getUser(peerId))return fail(res,404,'Jogador não encontrado.');
+    if(isBlocked(peerId))return fail(res,403,'Conversa indisponível devido a um bloqueio.');
+    if(operation==='messages'&&method==='GET'){
+      const messages=db.prepare(
+        'SELECT id,sender_id,recipient_id,text,created_at,read_at FROM (SELECT * FROM direct_messages WHERE (sender_id=? AND recipient_id=?) OR (sender_id=? AND recipient_id=?) ORDER BY created_at DESC,rowid DESC LIMIT 100) ORDER BY created_at,rowid'
+      ).all(uid,peerId,peerId,uid).map(m=>({
+        id:m.id,from:m.sender_id,to:m.recipient_id,text:m.text,at:m.created_at,read:!!m.read_at
+      }));
+      return json(res,200,{messages});
+    }
+    if(operation==='messages'&&method==='POST'){
+      if(!withinLimit(req,uid+':chat',25,60000))return fail(res,429,'Muitas mensagens. Aguarde um pouco.');
+      const b=await body(req,4096);
+      if(!validText(b.text,1000))return fail(res,400,'A mensagem deve conter de 1 a 1000 caracteres.');
+      const msg={id:randomUUID(),from:uid,to:peerId,text:b.text.trim(),at:new Date().toISOString()};
+      db.prepare('INSERT INTO direct_messages (id,sender_id,recipient_id,text,created_at) VALUES (?,?,?,?,?)')
+        .run(msg.id,msg.from,msg.to,msg.text,msg.at);
+      return json(res,201,{message:{...msg,read:false}});
+    }
+    if(operation==='read'&&method==='POST'){
+      db.prepare('UPDATE direct_messages SET read_at=? WHERE sender_id=? AND recipient_id=? AND read_at IS NULL')
+        .run(new Date().toISOString(),peerId,uid);
+      return json(res,200,{ok:true});
+    }
+    return fail(res,405,'Método não permitido.');
+  }
   if(path==='/api/users'&&method==='GET'){
     const people=db.prepare('SELECT id,name,handle,bio,last_seen FROM users WHERE id!=? AND id NOT IN (SELECT blocked_id FROM blocks WHERE user_id=?) ORDER BY created_at DESC LIMIT 100').all(uid,uid).map(publicUser);
     return json(res,200,{users:people});

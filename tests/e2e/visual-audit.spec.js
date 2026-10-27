@@ -150,6 +150,7 @@ test('auditoria visual completa, erros JS e layout em todas as páginas', async 
   // Test both palettes for two visually important screens.
   await take(ROUTES[2], 'light');
   await take(ROUTES[7], 'light');
+  await page.getByRole('button', { name: 'Ativar tema escuro' }).first().click();
 
 
   // Capturing URLs directly is not enough: reproduce a real link click after a scroll.

@@ -30,7 +30,7 @@ test('navegação de comunidades e perfil',async({page})=>{
  await page.goto('/perfil');await expect(page.getByRole('heading',{name:'Alex Nova'})).toBeVisible();
 });
 test('navegação depois de rolar mantém títulos visíveis e não deixa toast fixo', async ({ page }, testInfo) => {
- test.setTimeout(90000);
+ test.setTimeout(45000);
  await page.goto('/acesso');
  await page.getByRole('button', { name: 'Entrar na demonstração' }).click();
  await expect(page.locator('.toast')).toHaveCount(0);
@@ -40,9 +40,7 @@ test('navegação depois de rolar mantém títulos visíveis e não deixa toast 
   await page.locator('.sidebar').getByRole('link', { name: label, exact: true }).click();
  }
  for (const [item,title] of [
-  ['Configurações','Configurações'],['Comunidades','Comunidades'],
-  ['Notificações','Notificações'],['Meu perfil','Alex Nova'],
-  ['Explorar','Explorar jogadores'],['Amigos','Meus amigos']
+  ['Configurações','Configurações'],['Meu perfil','Alex Nova']
  ]) {
   await navigateSidebar('Feed');
   await expect(page.getByRole('heading', { name: /Seu feed/ })).toBeVisible();

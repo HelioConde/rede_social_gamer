@@ -1,54 +1,41 @@
-<div align="center">
-  <h1>🎮 GameSocial — Protótipo de comunidade gamer</h1>
-  <p><strong>Experimento front-end para explorar telas, cadastro e navegação de uma rede social voltada a jogadores.</strong></p>
-  <p><img alt="React" src="https://img.shields.io/badge/React-18-149ECA?logo=react&logoColor=white"> <img alt="Status" src="https://img.shields.io/badge/status-prot%C3%B3tipo-64748b"></p>
-</div>
+# 🎮 GameSocial — Comunidade gamer
 
-## O que já está no código
+Modernização do projeto histórico **rede_social_gamer**. Agora com Vite + React, layout responsivo, perfis, feed e uma API experimental.
 
-O aplicativo usa React Router, Redux e páginas dedicadas aos primeiros passos de uma comunidade gamer. A estrutura real contém os fluxos/telas abaixo:
+## Dois modos de funcionamento
 
-| Caminho | Componente |
-| --- | --- |
-| `/` e `/acesso` | Entrada e acesso |
-| `/registro` | Registro |
-| `/adicionais` | Dados complementares |
-| `/inicio` | Página inicial |
+**Demonstração estática:** funciona no GitHub Pages sem banco de dados. Inclui publicações, curtidas, comentários, amigos, comunidades, perfis e preferências no próprio navegador. Os dados de demonstração não são compartilhados com outras pessoas, e o aviso de demonstração permanece visível.
 
-Há uma base de gerenciamento de estado no diretório `src/redux/`. **Feed social público, mensagens, integrações com jogos e moderação não devem ser considerados prontos apenas porque fazem parte da ideia do produto.**
+**Servidor experimental:** Node 24 com SQLite, contas, login, sessão por cookie HttpOnly, API de posts e relacionamentos, denúncias e integração Riot ID opcional. Não disponibilize inscrições públicas nem utilize dados pessoais reais antes de revisão de segurança e LGPD.
 
-## Executar
+## Executar somente a demonstração
 
-```bash
-git clone https://github.com/HelioConde/rede_social_gamer.git
-cd rede_social_gamer
-npm install
-npm start
-```
+1. Instale Node.js 24 e execute `npm install`.
+2. No PowerShell: `$env:VITE_APP_MODE="demo"; npm run dev`.
+3. Abra http://localhost:5173 e clique em **Entrar na demonstração**.
 
-Abra `http://localhost:3000` ou a porta indicada pelo React Scripts.
+## Executar com banco local e API
 
-Scripts disponíveis: `npm run build`, `npm test` e `npm run deploy` (este último requer GitHub Pages configurado).
+Em um terminal: `npm run dev`.
+Em outro terminal: `npm --prefix server start`.
+A API escuta em http://127.0.0.1:8787 e o frontend encaminha /api para ela. O SQLite será criado em server/data, que é ignorado pelo Git. Para uma implantação com frontend e API em domínios diferentes, veja .env.example e docs/ARCHITECTURE.md.
 
-## Tecnologias e organização
+## Testes
 
-**React 18** · **React Router** · **Redux/React Redux** · **Axios** · **Create React App**.
+- `npm run lint`: lint do frontend.
+- `npm test`: testes unitários.
+- `npx playwright install chromium` e `npm run test:e2e`: testes E2E em desktop, celular e tablet.
+- `npm --prefix server test`: testes da API em Node 24.
+- `npm run build`: versão de produção.
 
-```text
-src/
-  App.jsx       Rotas
-  Acesso.jsx    Tela de acesso
-  Registro.jsx  Cadastro
-  Adicionais.jsx
-  Inicio.jsx
-  redux/        Estado global
-public/         Recursos estáticos
-```
+## Publicação no GitHub Pages
 
-## Status e limites
+O workflow Pages cria um build demonstrativo em https://helioconde.github.io/rede_social_gamer/ após merge na main. Nas configurações do repositório, selecione GitHub Actions como origem do Pages. A API Node não é hospedada pelo Pages.
 
-**Protótipo histórico.** Antes de transformar isso em serviço real, são necessários backend com autenticação confiável, controle de privacidade, tratamento de dados pessoais, regras de moderação e testes de integração.
+## Documentos
 
-Não use credenciais verdadeiras ou dados de terceiros enquanto essas medidas não estiverem validadas.
+- [Design System](docs/DESIGN_SYSTEM.md)
+- [Arquitetura, endpoints e segurança](docs/ARCHITECTURE.md)
+- [Estado do roteiro de 20 etapas](docs/IMPLEMENTATION_STATUS.md)
 
-Criado por [Hélio Conde](https://github.com/HelioConde).
+Feito por [Hélio Conde](https://github.com/HelioConde).

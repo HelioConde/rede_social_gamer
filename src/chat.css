@@ -83,3 +83,8 @@
 .chat-send-status{grid-column:1/-1;font-size:11px;color:var(--muted)}
 .chat-icon:focus-visible,.chat-launcher:focus-visible,.chat-contact:focus-visible,.chat-filters button:focus-visible,.chat-send:focus-visible,.chat-reset:focus-visible,.chat-delete-button:focus-visible,.chat-delete-confirm button:focus-visible{outline:2px solid var(--brand2);outline-offset:2px}
 @media(max-width:760px){body.chat-open{overflow:hidden}.chat-window{overscroll-behavior:contain}}
+
+/* Web Design Guidelines: teclado e controles de confirmação acessíveis. */
+.chat-search:focus-within{outline:3px solid #b7c3ff;outline-offset:2px}
+.chat-contact:focus-visible,.chat-filters button:focus-visible,.chat-reset:focus-visible,.chat-delete-button:focus-visible{outline:3px solid #b7c3ff;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.chat-launcher:hover{transform:none}}

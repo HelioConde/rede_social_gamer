@@ -148,3 +148,39 @@ test('ao abrir o chat no celular, a página por baixo não rola',async({page},te
  await page.getByRole('button',{name:'Fechar chat'}).click();
  await expect.poll(()=>page.locator('body').evaluate(el=>el.classList.contains('chat-open'))).toBeFalsy();
 });
+
+
+test('Escape cancela confirmação antes de fechar o chat',async({page})=>{
+ await enterDemo(page);
+ await page.getByRole('button',{name:/Abrir mensagens/}).click();
+ await page.locator('.chat-contact').filter({hasText:'Luna Pixel'}).click();
+ await page.getByRole('button',{name:/Excluir mensagem: Vou entrar mais tarde/}).click();
+ await expect(page.getByText('Excluir para todos?')).toBeVisible();
+ await page.keyboard.press('Escape');
+ await expect(page.getByText('Excluir para todos?')).toHaveCount(0);
+ await expect(page.getByRole('dialog',{name:'Conversa com Luna Pixel'})).toBeVisible();
+ await page.keyboard.press('Escape');
+ await expect(page.getByRole('dialog')).toHaveCount(0);
+ await page.getByRole('button',{name:/Abrir mensagens/}).click();
+ await page.getByRole('button',{name:'Reiniciar demonstração'}).click();
+ await expect(page.getByText('Restaurar conversas fictícias?')).toBeVisible();
+ await page.keyboard.press('Escape');
+ await expect(page.getByText('Restaurar conversas fictícias?')).toHaveCount(0);
+ await expect(page.getByRole('dialog',{name:'Mensagens'})).toBeVisible();
+});
+
+test('mensagens locais corrompidas não quebram a demonstração',async({page})=>{
+ const errors=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ await page.addInitScript(()=>{
+   localStorage.setItem('gamesocial-chat-demo-v1',JSON.stringify([
+     {id:'bad',from:'p2',to:'demo',text:'incompleta'},
+     {id:'valid',from:'p2',to:'demo',text:'Mensagem recuperada',at:'2026-10-27T09:00:00.000Z',read:false}
+   ]));
+ });
+ await enterDemo(page);
+ await page.getByRole('button',{name:/Abrir mensagens/}).click();
+ await page.locator('.chat-contact').filter({hasText:'Luna Pixel'}).click();
+ await expect(page.getByText('Mensagem recuperada')).toBeVisible();
+ expect(errors).toEqual([]);
+});

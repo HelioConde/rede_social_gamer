@@ -35,11 +35,18 @@ export function ChatDock(){
   useEffect(()=>{if(opened)fieldRef.current?.focus();},[opened,activeId]);
   useEffect(()=>{
     if(!opened)return undefined;
-    const onKey=e=>{if(e.key==='Escape'){e.preventDefault();chat.close();launcherRef.current?.focus();}};
+    const onKey=e=>{
+      if(e.key!=='Escape')return;
+      e.preventDefault();
+      if(pendingDelete!==null){setPendingDelete(null);return;}
+      if(resetConfirm){setResetConfirm(false);return;}
+      chat.close();
+      launcherRef.current?.focus();
+    };
     document.addEventListener('keydown',onKey);
     document.body.classList.add('chat-open');
     return ()=>{document.removeEventListener('keydown',onKey);document.body.classList.remove('chat-open');};
-  },[opened,chat.close]);
+  },[opened,chat.close,pendingDelete,resetConfirm]);
   const send=async e=>{
     e.preventDefault();
     if(!draft.trim()||chat.busy)return;

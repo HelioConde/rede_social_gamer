@@ -24,3 +24,8 @@ Inputs com labels associados; estados de foco visíveis; eventos por teclado com
 
 ## Image to Code: revisão
 Cada screenshot deve ser revisado para hierarquia, alinhamento, consistência de espaços, clipping, legibilidade em 320px e contraste. Capturas de falha do Playwright servem de base para revisões CSS. Sem screenshots reais, não declarar validação pixel-perfect ou conformidade WCAG certificada.
+## Messenger — etapa complementar
+- Painel flutuante com indicador de mensagens não lidas, cabeçalho, busca e filtros por conversa.
+- Anéis de foco explícitos nos botões de conversa e na busca; transformações decorativas desativadas com movimento reduzido.
+- Confirmações de exclusão e reinício utilizam Escape como cancelar, antes de fechar a janela.
+- Dados de demonstração são validados e descartam entradas malformadas, sem depender de SQL, servidor ou contas reais.

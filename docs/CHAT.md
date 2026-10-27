@@ -32,3 +32,9 @@ Mensagens próprias podem ser excluídas mediante confirmação inline. No backe
 Quando o chat está aberto em dispositivos móveis, a rolagem da página por baixo é bloqueada. Para evitar chamadas desnecessárias, o polling não acontece quando a aba está em segundo plano ou offline.
 
 Os testes automatizados incluem exclusão autorizada/não autorizada, filtro de não lidas, rascunhos e reinicialização da demonstração.
+
+## Confiabilidade e navegação (outubro de 2026)
+- Mensagens da demonstração são normalizadas ao ler o armazenamento local e ao receber sincronização entre abas. Registros sem data válida, IDs repetidos e textos acima de 1.000 caracteres são descartados.
+- O chat mantém o modo estático sem backend no GitHub Pages. O armazenamento de demonstração não significa comunicação entre usuários.
+- Escape cancela primeiro exclusão ou reinício pendente; pressionado novamente fecha o painel e devolve foco ao lançador.
+- Foco de teclado reforçado na busca e nos contatos. Testes Vitest e Playwright exercitam cenários de dados corrompidos e confirmações.

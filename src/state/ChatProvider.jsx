@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useApp } from './AppProvider';
 import { request } from '../lib/api';
+import { normalizeDemoMessages } from '../lib/chatStorage';
 
 const ChatContext = createContext(null);
 const DEMO_KEY = 'gamesocial-chat-demo-v1';
@@ -13,7 +14,8 @@ const startingMessages = [
 function readDemoMessages(){
   try {
     const value=JSON.parse(localStorage.getItem(DEMO_KEY));
-    if(Array.isArray(value) && value.length<1000) return value.filter(m=>m && typeof m.text==='string' && typeof m.from==='string');
+    const safe=normalizeDemoMessages(value);
+    if(safe && (safe.length>0 || value.length===0)) return safe;
   } catch { /* corrupted local demo storage */ }
   return startingMessages;
 }
@@ -40,7 +42,10 @@ export function ChatProvider({ children }){
       if(e.key!==DEMO_KEY||!e.newValue)return;
       try{
         const parsed=JSON.parse(e.newValue);
-        if(Array.isArray(parsed)&&parsed.length<1000)setDemoMessages(old=>JSON.stringify(old)===JSON.stringify(parsed)?old:parsed);
+        const safe=normalizeDemoMessages(parsed);
+        if(safe && (safe.length>0 || parsed.length===0)) {
+          setDemoMessages(old=>JSON.stringify(old)===JSON.stringify(safe)?old:safe);
+        }
       }catch{ /* ignore malformed data from another tab */ }
     };
     window.addEventListener('storage',sync);

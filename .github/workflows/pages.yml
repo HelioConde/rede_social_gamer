@@ -1,18 +1,28 @@
 name: Publish GameSocial Demo
 on:
-  push:
+  workflow_run:
+    workflows: ["QA GameSocial"]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
 permissions:
   contents: write
 concurrency:
   group: pages-branch
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   publish:
+    # Só o commit da main com frontend + backend + Playwright aprovados pode publicar.
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' ||
+          (github.event.workflow_run.conclusion == 'success' &&
+           github.event.workflow_run.head_branch == 'main' &&
+           github.event.workflow_run.head_sha == github.sha) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
@@ -21,6 +31,12 @@ jobs:
         env:
           VITE_APP_MODE: demo
           GITHUB_PAGES: 'true'
+      - name: Conferir build da demonstracao local
+        run: |
+          test -f dist/index.html
+          test ! -e dist/server
+          test ! -e dist/.env
+          test -n "$(find dist/assets -maxdepth 1 -name '*.js' -print -quit)"
       - uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

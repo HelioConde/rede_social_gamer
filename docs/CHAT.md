@@ -38,3 +38,9 @@ Os testes automatizados incluem exclusão autorizada/não autorizada, filtro de 
 - O chat mantém o modo estático sem backend no GitHub Pages. O armazenamento de demonstração não significa comunicação entre usuários.
 - Escape cancela primeiro exclusão ou reinício pendente; pressionado novamente fecha o painel e devolve foco ao lançador.
 - Foco de teclado reforçado na busca e nos contatos. Testes Vitest e Playwright exercitam cenários de dados corrompidos e confirmações.
+
+## Foco, teclado e publicação (27/10/2026)
+
+Ao fechar o chat pelo botão ou por Escape, o lançador **Mensagens** só reaparece após o React renderizar o painel minimizado. O foco é restaurado por um efeito dependente de `expanded`, evitando perder a posição do teclado no `body`. Playwright confirma que Enter reabre o chat e que Escape devolve o foco ao lançador, inclusive após abrir uma conversa.
+
+O GitHub Pages recebe apenas o bundle **modo demonstração** depois que o workflow `QA GameSocial` da `main` termina com `success` (frontend React, backend de teste, lint e Playwright); o workflow de publicação valida o SHA aprovado e não inclui a API Node/SQLite. A publicação manual continua disponível.

@@ -33,6 +33,19 @@ export function ChatProvider({ children }){
     try { localStorage.setItem(DEMO_KEY,JSON.stringify(demoMessages.slice(-900))); }
     catch { /* private browsing / quota */ }
   } },[mode,demoMessages]);
+  // Keep multiple tabs of the local demo consistent without storing draft text.
+  useEffect(()=>{
+    if(mode!=='demo')return undefined;
+    const sync=e=>{
+      if(e.key!==DEMO_KEY||!e.newValue)return;
+      try{
+        const parsed=JSON.parse(e.newValue);
+        if(Array.isArray(parsed)&&parsed.length<1000)setDemoMessages(parsed);
+      }catch{ /* ignore malformed data from another tab */ }
+    };
+    window.addEventListener('storage',sync);
+    return ()=>window.removeEventListener('storage',sync);
+  },[mode]);
   useEffect(()=>{ if(!user){setExpanded(false);setActiveId(null);setError('');} },[user]);
   const refreshInbox=useCallback(async()=>{
     if(mode!=='server'||!user)return;

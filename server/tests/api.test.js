@@ -59,3 +59,25 @@ test('mensagens privadas: envio, leitura, isolamento e bloqueio',async()=>{
  const noInbox=await call('/chats','GET',null,bia.cookie);
  assert.equal(noInbox.data.conversations.length,0);
 });
+
+test('somente o remetente pode excluir uma mensagem privada',async()=>{
+ const register=async()=>{
+  const r=await call('/register','POST',{name:'Pessoa DM',email:'dm_'+randomUUID()+'@example.com',password:'senha-forte-123'});
+  assert.equal(r.status,201);
+  return {id:r.data.user.id,cookie:r.cookie};
+ };
+ const a=await register(),b=await register(),c=await register();
+ const send=await call('/chats/'+b.id+'/messages','POST',{text:'mensagem a ser apagada'},a.cookie);
+ assert.equal(send.status,201);
+ const id=send.data.message.id;
+ const denied=await call('/chats/'+a.id+'/messages/'+id,'DELETE',null,b.cookie);
+ assert.equal(denied.status,404);
+ const unrelated=await call('/chats/'+a.id+'/messages/'+id,'DELETE',null,c.cookie);
+ assert.equal(unrelated.status,404);
+ const deleted=await call('/chats/'+b.id+'/messages/'+id,'DELETE',null,a.cookie);
+ assert.equal(deleted.status,200);
+ const after=await call('/chats/'+a.id+'/messages','GET',null,b.cookie);
+ assert.deepEqual(after.data.messages,[]);
+ const repeated=await call('/chats/'+b.id+'/messages/'+id,'DELETE',null,a.cookie);
+ assert.equal(repeated.status,404);
+});

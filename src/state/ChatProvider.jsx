@@ -40,7 +40,7 @@ export function ChatProvider({ children }){
       if(e.key!==DEMO_KEY||!e.newValue)return;
       try{
         const parsed=JSON.parse(e.newValue);
-        if(Array.isArray(parsed)&&parsed.length<1000)setDemoMessages(parsed);
+        if(Array.isArray(parsed)&&parsed.length<1000)setDemoMessages(old=>JSON.stringify(old)===JSON.stringify(parsed)?old:parsed);
       }catch{ /* ignore malformed data from another tab */ }
     };
     window.addEventListener('storage',sync);

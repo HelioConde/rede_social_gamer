@@ -20,3 +20,6 @@ Banco usa instruções preparadas; senhas usam scrypt com salt aleatório; cooki
 Consulta Riot ID retorna dados públicos quando a API key é configurada, mas não confirma que o usuário é dono dessa conta. Presença online é estimada pela atividade recente, sem WebSocket ou tempo real. A API de mídia está disponível no servidor, mas ainda não há composer de imagem no frontend.
 
 GitHub Pages não executa PHP, Node ou SQLite. Somente o modo demonstração pode funcionar nele sem outra hospedagem.
+## Mensagens privadas (chat)
+
+Tabela `direct_messages` com participantes, data e leitura. `GET /api/chats`, `GET/POST /api/chats/:peerId/messages`, `POST /api/chats/:peerId/read`. Sessão obrigatória, bloqueio mútuo, limites de envio, consultas por participante. Atualização por polling a cada 12 segundos (sem WebSocket/criptografia ponta a ponta). Modo Pages contém somente mensagens fictícias locais.

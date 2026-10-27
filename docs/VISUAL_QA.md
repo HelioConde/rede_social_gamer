@@ -47,3 +47,6 @@ O workflow deve falhar se houver erro de JS, HTTP/rede de primeira parte, captur
 **Correções:** ScrollToTop por rota, ausência do toast redundante no login demo, expiração automática de avisos transitórios em 4,5 s, ajuste de scroll-padding, e toast mobile acima da navegação inferior.
 
 **Novos cenários no Playwright:** navegação real via menu para seis áreas em cinco resoluções, mais capturas de página inteira e viewport após rolar e abrir Configurações/perfil público. A auditoria prevê agora **75 screenshots integrais + 75 screenshots de viewport**. O teste estático não substitui esse teste de transição.
+
+## Chat em janela flutuante
+A auditoria agora fotografa o chat aberto na lista e em conversa, em todas as cinco resoluções, gerando mais 10 capturas integrais e 10 de viewport. Ela verifica se a janela sai da tela, provoca overflow horizontal ou gera erro de JavaScript.

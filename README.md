@@ -39,3 +39,7 @@ O workflow de publicação envia o build demonstrativo à branch gh-pages, que j
 - [Estado do roteiro de 20 etapas](docs/IMPLEMENTATION_STATUS.md)
 
 Feito por [Hélio Conde](https://github.com/HelioConde).
+
+## Novo: mensagens privadas em janela flutuante
+
+O botão **Mensagens** abre um painel no canto inferior direito (desktop) ou em tela cheia (mobile). Há pesquisa, conversas, indicador de não lidas e envio. Na demo do GitHub Pages, conversas e histórico são **fictícios e locais**; a API Node inclui endpoints de mensagens privadas entre usuários autenticados, atualizados por consultas periódicas. Consulte [docs/CHAT.md](docs/CHAT.md).

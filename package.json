@@ -9,10 +9,11 @@
     "preview": "vite preview --host 0.0.0.0",
     "lint": "eslint src vite.config.js playwright.config.js tests",
     "test": "vitest run",
-    "test:e2e": "playwright test tests/e2e/social.spec.js",
+    "test:e2e": "playwright test tests/e2e/social.spec.js tests/e2e/chat.spec.js --project=desktop --project=mobile-320 --project=tablet",
     "check": "npm run lint && npm test && npm run build",
     "test:visual": "playwright test tests/e2e/visual-audit.spec.js",
-    "report:visual": "node scripts/generate-visual-report.mjs"
+    "report:visual": "node scripts/generate-visual-report.mjs",
+    "test:e2e:all": "playwright test tests/e2e/social.spec.js tests/e2e/chat.spec.js"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

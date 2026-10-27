@@ -26,3 +26,36 @@ test('senha inválida é rejeitada',async()=>{
  const invalid=await call('/register','POST',{name:'X',email:'bad',password:'1'});assert.equal(invalid.status,400);
  const login=await call('/login','POST',{email:'unknown@example.com',password:'fake12345'});assert.equal(login.status,401);
 });
+
+test('mensagens privadas: envio, leitura, isolamento e bloqueio',async()=>{
+ const register=async(name)=>{
+  const r=await call('/register','POST',{name,email:'chat_'+randomUUID()+'@example.com',password:'senha-forte-123'});
+  assert.equal(r.status,201);
+  return {id:r.data.user.id,cookie:r.cookie};
+ };
+ const alex=await register('Teste Alex'),bia=await register('Teste Bia'),intruso=await register('Teste Intruso');
+ const denied=await call('/chats','GET');assert.equal(denied.status,401);
+ const missing=await call('/chats/'+alex.id+'/messages','POST',{text:'Oi!'},alex.cookie);
+ assert.equal(missing.status,404);
+ const empty=await call('/chats/'+bia.id+'/messages','POST',{text:'   '},alex.cookie);
+ assert.equal(empty.status,400);
+ const sent=await call('/chats/'+bia.id+'/messages','POST',{text:'Vamos jogar hoje?'},alex.cookie);
+ assert.equal(sent.status,201);
+ assert.equal(sent.data.message.from,alex.id);
+ const unread=await call('/chats','GET',null,bia.cookie);
+ assert.equal(unread.status,200);
+ assert.equal(unread.data.conversations[0].peer.id,alex.id);
+ assert.equal(unread.data.conversations[0].unreadCount,1);
+ const thread=await call('/chats/'+alex.id+'/messages','GET',null,bia.cookie);
+ assert.equal(thread.data.messages.length,1);
+ assert.equal(thread.data.messages[0].text,'Vamos jogar hoje?');
+ const privateThread=await call('/chats/'+alex.id+'/messages','GET',null,intruso.cookie);
+ assert.equal(privateThread.data.messages.length,0);
+ const marked=await call('/chats/'+alex.id+'/read','POST',{},bia.cookie);assert.equal(marked.status,200);
+ const readInbox=await call('/chats','GET',null,bia.cookie);assert.equal(readInbox.data.conversations[0].unreadCount,0);
+ const blocked=await call('/blocks/'+alex.id,'POST',{},bia.cookie);assert.equal(blocked.status,200);
+ const noSend=await call('/chats/'+bia.id+'/messages','POST',{text:'Não deve chegar'},alex.cookie);
+ assert.equal(noSend.status,403);
+ const noInbox=await call('/chats','GET',null,bia.cookie);
+ assert.equal(noInbox.data.conversations.length,0);
+});

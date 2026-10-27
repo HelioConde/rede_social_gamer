@@ -39,3 +39,11 @@ O workflow deve falhar se houver erro de JS, HTTP/rede de primeira parte, captur
 - HTTP de outros domínios e avisos do navegador são registrados para inspeção; erros de rede de primeira parte e exceções não tratadas são bloqueantes.
 - Não é um pixel-diff visual entre commits. Para detectar mudanças estéticas sutis, compare as capturas armazenadas em execuções anteriores.
 - Nomes de arquivos e timestamps podem variar entre execuções; nenhum PNG é publicado no site de produção, só como artefato de CI.
+
+## Revisão das capturas reais enviadas pelo usuário (27/10/2026)
+
+**Problemas identificados:** navegar pelo menu após rolar mantinha a posição vertical do feed na nova rota e ocultava títulos atrás da barra superior; o aviso flutuante sobre o modo demo permanecia indefinidamente visível e cobria publicações/ações.
+
+**Correções:** ScrollToTop por rota, ausência do toast redundante no login demo, expiração automática de avisos transitórios em 4,5 s, ajuste de scroll-padding, e toast mobile acima da navegação inferior.
+
+**Novos cenários no Playwright:** navegação real via menu para seis áreas em cinco resoluções, mais capturas de página inteira e viewport após rolar e abrir Configurações/perfil público. A auditoria prevê agora **75 screenshots integrais + 75 screenshots de viewport**. O teste estático não substitui esse teste de transição.

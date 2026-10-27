@@ -71,3 +71,80 @@ test('chat funciona entre rotas sem fechar enquanto navega',async({page})=>{
  // Navegação pelo app mantém o estado do chat, mas uma recarga completa pode minimizar.
  await expect(page.getByRole('button',{name:/Abrir mensagens/})).toBeVisible();
 });
+
+
+test('filtro de conversas não lidas atualiza quando a conversa é aberta',async({page})=>{
+ await enterDemo(page);
+ await page.getByRole('button',{name:/Abrir mensagens/}).click();
+ await page.getByRole('button',{name:/Não lidas/}).click();
+ await expect(page.locator('.chat-contact').filter({hasText:'Luna Pixel'})).toBeVisible();
+ await expect(page.locator('.chat-contact').filter({hasText:'Kai Storm'})).toHaveCount(0);
+ await page.locator('.chat-contact').filter({hasText:'Luna Pixel'}).click();
+ await page.getByRole('button',{name:'Voltar para conversas'}).click();
+ await expect(page.getByText('Nenhuma conversa não lida.')).toBeVisible();
+ await page.getByRole('button',{name:'Todas',exact:true}).click();
+ await expect(page.locator('.chat-contact').filter({hasText:'Luna Pixel'})).toBeVisible();
+});
+
+test('rascunhos são preservados ao trocar de conversa e não vazam para outras',async({page})=>{
+ await enterDemo(page);
+ await page.getByRole('button',{name:/Abrir mensagens/}).click();
+ await page.locator('.chat-contact').filter({hasText:'Nina Quest'}).click();
+ await page.getByRole('textbox',{name:'Sua mensagem para Nina Quest'}).fill('Rascunho particular');
+ await page.getByRole('button',{name:'Voltar para conversas'}).click();
+ await page.locator('.chat-contact').filter({hasText:'Luna Pixel'}).click();
+ await expect(page.getByRole('textbox',{name:'Sua mensagem para Luna Pixel'})).toHaveValue('');
+ await page.getByRole('button',{name:'Voltar para conversas'}).click();
+ await page.locator('.chat-contact').filter({hasText:'Nina Quest'}).click();
+ await expect(page.getByRole('textbox',{name:'Sua mensagem para Nina Quest'})).toHaveValue('Rascunho particular');
+ await page.reload();
+ await page.getByRole('button',{name:/Abrir mensagens/}).click();
+ await page.locator('.chat-contact').filter({hasText:'Nina Quest'}).click();
+ await expect(page.getByRole('textbox',{name:'Sua mensagem para Nina Quest'})).toHaveValue('');
+});
+
+test('exclusão exige confirmação e permanece após recarregar',async({page})=>{
+ await enterDemo(page);
+ await page.getByRole('button',{name:/Abrir mensagens/}).click();
+ await page.locator('.chat-contact').filter({hasText:'Luna Pixel'}).click();
+ await page.getByRole('textbox',{name:'Sua mensagem para Luna Pixel'}).fill('Mensagem temporária para excluir');
+ await page.getByRole('button',{name:'Enviar mensagem'}).click();
+ await expect(page.getByText('Mensagem temporária para excluir')).toBeVisible();
+ await page.getByRole('button',{name:/Excluir mensagem: Mensagem temporária/}).click();
+ await expect(page.getByText('Excluir para todos?')).toBeVisible();
+ await page.getByRole('button',{name:'Cancelar'}).click();
+ await expect(page.getByText('Mensagem temporária para excluir')).toBeVisible();
+ await page.getByRole('button',{name:/Excluir mensagem: Mensagem temporária/}).click();
+ await page.getByRole('button',{name:'Excluir',exact:true}).click();
+ await expect(page.getByText('Mensagem temporária para excluir')).toHaveCount(0);
+ await page.reload();
+ await page.getByRole('button',{name:/Abrir mensagens/}).click();
+ await page.locator('.chat-contact').filter({hasText:'Luna Pixel'}).click();
+ await expect(page.getByText('Mensagem temporária para excluir')).toHaveCount(0);
+});
+
+test('reiniciar demonstração exige confirmação e restaura mensagens fictícias',async({page})=>{
+ await enterDemo(page);
+ await page.getByRole('button',{name:/Abrir mensagens/}).click();
+ await page.locator('.chat-contact').filter({hasText:'Kai Storm'}).click();
+ await page.getByRole('textbox',{name:'Sua mensagem para Kai Storm'}).fill('Esta conversa será reiniciada');
+ await page.getByRole('button',{name:'Enviar mensagem'}).click();
+ await page.getByRole('button',{name:'Voltar para conversas'}).click();
+ await page.getByRole('button',{name:'Reiniciar demonstração'}).click();
+ await page.getByRole('button',{name:'Cancelar'}).click();
+ await expect(page.getByText('Esta conversa será reiniciada')).toBeVisible();
+ await page.getByRole('button',{name:'Reiniciar demonstração'}).click();
+ await page.getByRole('button',{name:'Restaurar'}).click();
+ await page.locator('.chat-contact').filter({hasText:'Kai Storm'}).click();
+ await expect(page.getByText('Esta conversa será reiniciada')).toHaveCount(0);
+ await expect(page.getByText('Partiu Valorant no fim de semana?')).toBeVisible();
+});
+
+test('ao abrir o chat no celular, a página por baixo não rola',async({page},testInfo)=>{
+ if(testInfo.project.use.viewport.width>760)test.skip();
+ await enterDemo(page);
+ await page.getByRole('button',{name:/Abrir mensagens/}).click();
+ await expect.poll(()=>page.locator('body').evaluate(el=>el.classList.contains('chat-open'))).toBeTruthy();
+ await page.getByRole('button',{name:'Fechar chat'}).click();
+ await expect.poll(()=>page.locator('body').evaluate(el=>el.classList.contains('chat-open'))).toBeFalsy();
+});

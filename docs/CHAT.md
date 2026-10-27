@@ -21,3 +21,14 @@ Não implantar o servidor para usuários reais sem revisar privacidade/LGPD, ret
 
 ## QA
 \`npm run test:e2e\` verifica envio, persistência, pesquisa, acesso por perfil e layout nas cinco resoluções. A auditoria visual também gera capturas com o chat aberto nas telas pequenas e grandes, além do feed normal.
+
+
+## Melhorias da versão 2
+
+A lista agora pode filtrar **Todas** e **Não lidas**, com indicadores mais claros. O histórico agrupa mensagens por dia e diferencia estado "Enviada" de "Lida" quando a API informa leitura. Ao alternar entre conversas, o texto ainda não enviado fica preservado enquanto o aplicativo estiver aberto; por privacidade, rascunhos **não são armazenados no navegador**.
+
+Mensagens próprias podem ser excluídas mediante confirmação inline. No backend, a exclusão só é aceita do próprio remetente, na conversa correspondente. Existe um botão para **reiniciar os dados fictícios**, também com confirmação; isso não altera nenhum dado de contas reais.
+
+Quando o chat está aberto em dispositivos móveis, a rolagem da página por baixo é bloqueada. Para evitar chamadas desnecessárias, o polling não acontece quando a aba está em segundo plano ou offline.
+
+Os testes automatizados incluem exclusão autorizada/não autorizada, filtro de não lidas, rascunhos e reinicialização da demonstração.

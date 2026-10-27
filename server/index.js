@@ -147,6 +147,14 @@ async function handler(req,res){
     }
     return fail(res,405,'Método não permitido.');
   }
+  const deleteChatMatch=path.match(/^\/api\/chats\/([0-9a-f-]{36})\/messages\/([0-9a-f-]{36})$/);
+  if(deleteChatMatch&&method==='DELETE'){
+    const [peerId,messageId]=deleteChatMatch.slice(1);
+    const owned=db.prepare('SELECT 1 FROM direct_messages WHERE id=? AND sender_id=? AND recipient_id=?').get(messageId,uid,peerId);
+    if(!owned)return fail(res,404,'Mensagem não encontrada ou sem permissão para excluir.');
+    db.prepare('DELETE FROM direct_messages WHERE id=? AND sender_id=? AND recipient_id=?').run(messageId,uid,peerId);
+    return json(res,200,{ok:true});
+  }
   if(path==='/api/users'&&method==='GET'){
     const people=db.prepare('SELECT id,name,handle,bio,last_seen FROM users WHERE id!=? AND id NOT IN (SELECT blocked_id FROM blocks WHERE user_id=?) ORDER BY created_at DESC LIMIT 100').all(uid,uid).map(publicUser);
     return json(res,200,{users:people});

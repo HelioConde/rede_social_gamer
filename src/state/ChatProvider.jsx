@@ -33,6 +33,19 @@ export function ChatProvider({ children }){
     try { localStorage.setItem(DEMO_KEY,JSON.stringify(demoMessages.slice(-900))); }
     catch { /* private browsing / quota */ }
   } },[mode,demoMessages]);
+  // Keep multiple tabs of the local demo consistent without storing draft text.
+  useEffect(()=>{
+    if(mode!=='demo')return undefined;
+    const sync=e=>{
+      if(e.key!==DEMO_KEY||!e.newValue)return;
+      try{
+        const parsed=JSON.parse(e.newValue);
+        if(Array.isArray(parsed)&&parsed.length<1000)setDemoMessages(old=>JSON.stringify(old)===JSON.stringify(parsed)?old:parsed);
+      }catch{ /* ignore malformed data from another tab */ }
+    };
+    window.addEventListener('storage',sync);
+    return ()=>window.removeEventListener('storage',sync);
+  },[mode]);
   useEffect(()=>{ if(!user){setExpanded(false);setActiveId(null);setError('');} },[user]);
   const refreshInbox=useCallback(async()=>{
     if(mode!=='server'||!user)return;
@@ -43,13 +56,16 @@ export function ChatProvider({ children }){
     if(mode!=='server'||!user)return;
     const result=await request('/chats/'+encodeURIComponent(peerId)+'/messages');
     setServerThreads(old=>({...old,[peerId]:result.messages||[]}));
-    await request('/chats/'+encodeURIComponent(peerId)+'/read',{method:'POST'});
-    setServerSummaries(old=>old.map(row=>row.peer.id===peerId?{...row,unreadCount:0}:row));
+    if((result.messages||[]).some(m=>m.to===user.id && !m.read)) {
+      await request('/chats/'+encodeURIComponent(peerId)+'/read',{method:'POST'});
+      setServerSummaries(old=>old.map(row=>row.peer.id===peerId?{...row,unreadCount:0}:row));
+    }
   },[mode,user]);
   useEffect(()=>{
     if(mode!=='server'||!user)return undefined;
     refreshInbox().catch(()=>setError('Não foi possível carregar as mensagens.'));
     const interval=window.setInterval(()=>{
+      if(document.visibilityState==='hidden'||!navigator.onLine)return;
       refreshInbox().catch(()=>{});
       if(expanded&&activeId)loadThread(activeId).catch(()=>{});
     },12000);
@@ -97,7 +113,7 @@ export function ChatProvider({ children }){
     if(!activeId||!content||content.length>1000||busy)return false;
     setBusy(true);setError('');
     try{
-      if(mode==='demo')setDemoMessages(old=>[...old,{id:crypto.randomUUID(),from:mine,to:activeId,text:content,at:new Date().toISOString(),read:true}]);
+      if(mode==='demo')setDemoMessages(old=>[...old,{id:crypto.randomUUID(),from:mine,to:activeId,text:content,at:new Date().toISOString(),read:false}]);
       else{
         await request('/chats/'+encodeURIComponent(activeId)+'/messages',{method:'POST',body:{text:content}});
         await loadThread(activeId);await refreshInbox();
@@ -106,8 +122,30 @@ export function ChatProvider({ children }){
     }catch(e){setError(e.message);return false;}
     finally{setBusy(false);}
   };
+  const deleteMessage=async id=>{
+    const message=thread.find(m=>m.id===id);
+    if(!message||message.from!==mine||busy)return false;
+    setError('');setBusy(true);
+    try{
+      if(mode==='demo'){
+        setDemoMessages(old=>old.filter(m=>m.id!==id));
+      }else{
+        await request('/chats/'+encodeURIComponent(activeId)+'/messages/'+encodeURIComponent(id),{method:'DELETE'});
+        setServerThreads(old=>({...old,[activeId]:(old[activeId]||[]).filter(m=>m.id!==id)}));
+        await refreshInbox();
+      }
+      return true;
+    }catch(e){setError(e.message);return false;}
+    finally{setBusy(false);}
+  };
+  const resetDemo=()=>{
+    if(mode!=='demo')return;
+    setDemoMessages(startingMessages.map(message=>({...message})));
+    setActiveId(null);
+    setError('');
+  };
   const close=()=>{setExpanded(false);setError('');};
-  const value={expanded,activeId,activePeer,contacts,conversations,unread,thread,busy,error,setError,openInbox,openChat,sendChat,close,mode,mine,refreshInbox};
+  const value={expanded,activeId,activePeer,contacts,conversations,unread,thread,busy,error,setError,openInbox,openChat,sendChat,deleteMessage,resetDemo,close,mode,mine,refreshInbox};
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 }
 export function useChat(){const value=useContext(ChatContext);if(!value)throw Error('ChatProvider ausente');return value;}

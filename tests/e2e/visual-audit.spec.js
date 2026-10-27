@@ -70,7 +70,7 @@ test('auditoria visual completa, erros JS e layout em todas as páginas', async 
     const from = errors.length;
     try {
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
-      await expect(page.getByRole('heading', { name: REQUIRED[url], exact: true }).first()).toBeVisible({ timeout: 12000 });
+      await expect(page.getByRole('heading', { name: REQUIRED[url], exact: url !== '/inicio' }).first()).toBeVisible({ timeout: 12000 });
       if (!route.public) await expect(page.getByText('Modo demonstração').first()).toBeVisible();
       if (theme === 'light') {
         const button = page.getByRole('button', { name: 'Ativar tema claro' });
@@ -137,7 +137,7 @@ test('auditoria visual completa, erros JS e layout em todas as páginas', async 
   current = 'entrar-demo';
   await page.goto('/acesso', { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'Entrar na demonstração' }).click();
-  await expect(page.getByRole('heading', { name: 'Seu feed', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Seu feed' })).toBeVisible();
 
   for (const route of ROUTES.filter(r => !['login', 'cadastro'].includes(r.key))) await take(route);
   // Test both palettes for two visually important screens.

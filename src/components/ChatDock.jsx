@@ -15,7 +15,7 @@ export function ChatDock(){
   const thread=chat.thread;
   const activeId=chat.activeId;
   useEffect(()=>{setDraft('');},[activeId]);
-  useEffect(()=>{if(opened&&activeId)endRef.current?.scrollIntoView({block:'end',behavior:'instant'});},[opened,activeId,thread.length]);
+  useEffect(()=>{if(opened&&activeId)if(endRef.current?.parentElement){const area=endRef.current.parentElement;area.scrollTop=area.scrollHeight;}},[opened,activeId,thread.length]);
   useEffect(()=>{if(opened)fieldRef.current?.focus();},[opened,activeId]);
   useEffect(()=>{
     if(!opened)return undefined;

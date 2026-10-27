@@ -125,7 +125,7 @@ async function handler(req,res){
     if(isBlocked(peerId))return fail(res,403,'Conversa indisponível devido a um bloqueio.');
     if(operation==='messages'&&method==='GET'){
       const messages=db.prepare(
-        'SELECT id,sender_id,recipient_id,text,created_at,read_at FROM (SELECT * FROM direct_messages WHERE (sender_id=? AND recipient_id=?) OR (sender_id=? AND recipient_id=?) ORDER BY created_at DESC,rowid DESC LIMIT 100) ORDER BY created_at,rowid'
+        'SELECT id,sender_id,recipient_id,text,created_at,read_at FROM (SELECT * FROM direct_messages WHERE (sender_id=? AND recipient_id=?) OR (sender_id=? AND recipient_id=?) ORDER BY created_at DESC,rowid DESC LIMIT 100) ORDER BY created_at,id'
       ).all(uid,peerId,peerId,uid).map(m=>({
         id:m.id,from:m.sender_id,to:m.recipient_id,text:m.text,at:m.created_at,read:!!m.read_at
       }));

@@ -26,6 +26,6 @@ test('layout não excede a largura',async({page})=>{
 });
 test('navegação de comunidades e perfil',async({page})=>{
  await page.goto('/acesso');await page.getByRole('button',{name:'Entrar na demonstração'}).click();
- await page.goto('/comunidades');await expect(page.getByRole('heading',{name:'Comunidades'})).toBeVisible();
+ await page.goto('/comunidades');await expect(page.getByRole('heading',{name:'Comunidades',exact:true})).toBeVisible();
  await page.goto('/perfil');await expect(page.getByRole('heading',{name:'Alex Nova'})).toBeVisible();
 });

@@ -77,3 +77,12 @@ h1{font-size:clamp(27px,3vw,35px);letter-spacing:-.04em}h2{font-size:19px;letter
 
 /* 320px: não esconder horário/identificador da publicação atrás de reticências. */
 @media(max-width:500px){.post-author small{white-space:normal;text-overflow:clip;overflow:visible;max-width:none;line-height:1.35}.post-author>span:last-child{min-width:0;overflow-wrap:anywhere}}
+
+/* Route navigation/focus should never place headings underneath the sticky topbar. */
+html{scroll-padding-top:95px}
+.page-heading,.profile-cover,.profile-info,.panel{scroll-margin-top:95px}
+@media(max-width:760px){
+  html{scroll-padding-top:80px}
+  .page-heading,.profile-cover,.profile-info,.panel{scroll-margin-top:80px}
+  .toast{bottom:calc(78px + env(safe-area-inset-bottom));width:min(480px,calc(100vw - 32px))}
+}

@@ -50,9 +50,12 @@ export function AppProvider({ children }) {
   useEffect(()=> { if (mode === 'server' && user) refresh(); },[mode,user?.id,refresh]);
   const enterDemo = (remember = false) => {
     if(mode !== 'demo') return;
+    // The persistent demo banner already explains local-only data; avoid a second floating warning.
+    // Clear an earlier persistent session if the user opts out of 'Manter demonstração'.
+    localStorage.removeItem('gamesocial-demo-session');
+    sessionStorage.removeItem('gamesocial-demo-session');
     (remember ? localStorage : sessionStorage).setItem('gamesocial-demo-session','yes');
     setUser(data.profile);
-    setMessage('Modo demonstração: os dados ficam apenas neste navegador.');
   };
   const login = async (email,password,remember) => {
     if (mode !== 'server') throw Error('Autenticação real indisponível. Use o modo demonstração.');

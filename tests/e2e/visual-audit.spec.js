@@ -150,6 +150,57 @@ test('auditoria visual completa, erros JS e layout em todas as páginas', async 
   // Test both palettes for two visually important screens.
   await take(ROUTES[2], 'light');
   await take(ROUTES[7], 'light');
+  await page.getByRole('button', { name: 'Ativar tema escuro' }).first().click();
+
+
+  // Capturing URLs directly is not enough: reproduce a real link click after a scroll.
+  // This detects the hidden-heading regression shown in browser screenshots.
+  for (const transition of [
+    { key: 'apos-rolagem-configuracoes', target: 'configuracoes', title: 'Configurações' },
+    { key: 'apos-rolagem-perfil-publico', target: 'perfil', title: 'Luna Pixel' }
+  ]) {
+    const from = errors.length;
+    current = transition.key;
+    const file = transition.key + '.png';
+    const viewportFile = transition.key + '-viewport.png';
+    const row = { route: transition.target, key: current, theme: 'dark', screenshot: file, viewportScreenshot: viewportFile, issues: [], errors: [], measurements: {} };
+    try {
+      await page.goto('/inicio', { waitUntil: 'domcontentloaded' });
+      await expect(page.getByRole('heading', { name: /Seu feed/ })).toBeVisible();
+      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+      if (transition.target === 'configuracoes') {
+        if ((testInfo.project.use.viewport?.width || 1440) <= 760)
+          await page.getByRole('button', { name: 'Abrir menu' }).click();
+        await page.locator('.sidebar').getByRole('link', { name: 'Configurações', exact: true }).click();
+      } else {
+        await page.locator('.post-card .post-author').first().click();
+      }
+      await expect(page.getByRole('heading', { name: transition.title, exact: true }).first()).toBeVisible();
+      const measurement = await page.evaluate(() => {
+        const heading = document.querySelector('.page-content h1');
+        const topbar = document.querySelector('.topbar');
+        return {
+          scrollY: Math.round(window.scrollY),
+          headingTop: Math.round(heading?.getBoundingClientRect().top || 0),
+          headerBottom: Math.round(topbar?.getBoundingClientRect().bottom || 0),
+          horizontalOverflow: Math.max(0,document.documentElement.scrollWidth-document.documentElement.clientWidth)
+        };
+      });
+      row.measurements = measurement;
+      if (measurement.scrollY > 2) row.issues.push({ type: 'rolagem-preservada', details: measurement.scrollY + 'px' });
+      if (measurement.headingTop <= measurement.headerBottom) row.issues.push({ type: 'titulo-oculto-topbar', details: measurement });
+      if (measurement.horizontalOverflow > 2) row.issues.push({ type: 'overflow-horizontal', details: measurement });
+    } catch (err) {
+      row.issues.push({ type: 'navegacao-apos-rolagem', details: String(err.message).slice(0,1200) });
+    } finally {
+      try { await page.screenshot({ path: join(folder,file),fullPage:true,animations:'disabled' }); }
+      catch (err) { row.issues.push({ type: 'screenshot-falhou', details: String(err.message).slice(0,500) }); }
+      try { await page.screenshot({ path: join(folder,viewportFile),fullPage:false,animations:'disabled' }); }
+      catch (err) { row.issues.push({ type: 'viewport-screenshot-falhou', details: String(err.message).slice(0,500) }); }
+      row.errors = errors.slice(from);
+      captures.push(row);
+    }
+  }
 
   const summary = {
     project, viewport: testInfo.project.use.viewport, date: new Date().toISOString(),

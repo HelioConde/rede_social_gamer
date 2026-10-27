@@ -11,6 +11,7 @@ const stored = read(storageKey, defaultData);
 export function AppProvider({ children }) {
   const [mode, setMode] = useState('loading');
   const [user, setUser] = useState(null);
+  const [serverUsers, setServerUsers] = useState([]);
   const [data, setData] = useState(stored);
   const [theme, setTheme] = useState(() => localStorage.getItem('gamesocial-theme') || 'dark');
   const [message, setMessage] = useState('');
@@ -28,20 +29,21 @@ export function AppProvider({ children }) {
         if (remembered) setUser(read(storageKey,defaultData).profile);
         return;
       }
-      setMode('server');
       try {
         const res = await request('/session');
         if (active && res.user) setUser(res.user);
       } catch { /* a missing session is expected */ }
+      if (active) setMode('server');
     })();
     return () => { active = false; };
   }, []);
   const refresh = useCallback(async () => {
     if (mode !== 'server') return;
     try {
-      const [feed, friends, notifications, joined, profile] = await Promise.all([
-        request('/posts'), request('/friends'), request('/notifications'), request('/communities/joined'), request('/session')
+      const [feed, friends, notifications, joined, profile, users] = await Promise.all([
+        request('/posts'), request('/friends'), request('/notifications'), request('/communities/joined'), request('/session'), request('/users')
       ]);
+      setServerUsers(users.users || []);
       setData(old=>({ ...old,posts:feed.posts,friends:friends.friends,notifications:notifications.notifications,joined:joined.joined,profile:profile.user || old.profile }));
     } catch (err) { setMessage(err.message); }
   },[mode]);
@@ -84,7 +86,7 @@ export function AppProvider({ children }) {
   const reportPost = (id,reason) => action('/reports',{postId:id,reason},old=>({...old,reports:[...old.reports,{postId:id,reason}]}));
   const blockUser = id => action('/blocks/'+encodeURIComponent(id),{},old=>({...old,blocked:old.blocked.includes(id)?old.blocked.filter(x=>x!==id):[...old.blocked,id]}));
   const profile = mode==='demo' ? data.profile : (data.profile?.id === user?.id ? data.profile : user || data.profile);
-  const value = useMemo(()=>({ mode,user,profile,theme,setTheme,message,setMessage,posts:data.posts.filter(p=>!data.blocked.includes(p.authorId)),friends:data.friends,joined:data.joined,notifications:data.notifications,blocked:data.blocked,players:mode==='demo'?[{...players[0],...data.profile},...players.slice(1)]:[profile,...players.slice(1)].filter(Boolean),communities,enterDemo,login,register,logout,createPost,editPost,deletePost,toggleLike,comment,toggleFriend,toggleJoin,markRead,saveProfile,reportPost,blockUser,refresh }),[mode,user,profile,theme,message,data]);
+  const value = useMemo(()=>({ mode,user,profile,theme,setTheme,message,setMessage,posts:data.posts.filter(p=>!data.blocked.includes(p.authorId)),friends:data.friends,joined:data.joined,notifications:data.notifications,blocked:data.blocked,players:mode==='demo'?[{...players[0],...data.profile},...players.slice(1)]:[profile,...serverUsers].filter(Boolean),communities,enterDemo,login,register,logout,createPost,editPost,deletePost,toggleLike,comment,toggleFriend,toggleJoin,markRead,saveProfile,reportPost,blockUser,refresh }),[mode,user,profile,theme,message,data,serverUsers]);
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 export function useApp() { const value = useContext(AppContext); if(!value) throw Error('AppProvider ausente'); return value; }

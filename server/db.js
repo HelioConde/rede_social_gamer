@@ -1,4 +1,5 @@
 import { DatabaseSync } from 'node:sqlite';
+import { randomUUID } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 const filename = process.env.DB_PATH || 'server/data/gamesocial.sqlite';
@@ -24,5 +25,5 @@ export function publicUser(user) {
   return { id:user.id,name:user.name,handle:user.handle,bio:user.bio,avatar:user.name.trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase(),color:'#765af2',games:[],tag:'Comunidade',online:!!user.last_seen && Date.now()-new Date(user.last_seen).getTime()<5*60*1000 };
 }
 export function notify(id,text){
-  db.prepare('INSERT INTO notifications (id,user_id,text,created_at) VALUES (?,?,?,?)').run(crypto.randomUUID(),id,text.slice(0,180),new Date().toISOString());
+  db.prepare('INSERT INTO notifications (id,user_id,text,created_at) VALUES (?,?,?,?)').run(randomUUID(),id,text.slice(0,180),new Date().toISOString());
 }

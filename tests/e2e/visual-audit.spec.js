@@ -66,6 +66,7 @@ test('auditoria visual completa, erros JS e layout em todas as páginas', async 
     current = route.key + (theme === 'light' ? '-claro' : '');
     const url = route.path;
     const file = current + '.png';
+    const viewportFile = current + '-viewport.png';
     const row = { route: url, key: current, theme, screenshot: file, issues: [], errors: [], measurements: {} };
     const from = errors.length;
     try {
@@ -127,6 +128,12 @@ test('auditoria visual completa, erros JS e layout em todas as páginas', async 
       } catch (err) {
         row.issues.push({ type: 'screenshot-falhou', details: String(err.message).slice(0, 700) });
       }
+      try {
+        await page.screenshot({ path: join(folder, viewportFile), fullPage: false, animations: 'disabled', timeout: 15000 });
+        row.viewportScreenshot = viewportFile;
+      } catch (err) {
+        row.issues.push({ type: 'viewport-screenshot-falhou', details: String(err.message).slice(0, 700) });
+      }
       row.errors = errors.slice(from);
       captures.push(row);
     }
@@ -147,7 +154,7 @@ test('auditoria visual completa, erros JS e layout em todas as páginas', async 
   const summary = {
     project, viewport: testInfo.project.use.viewport, date: new Date().toISOString(),
     captures, totalIssues: captures.reduce((n, x) => n + x.issues.length, 0),
-    totalErrors: captures.reduce((n, x) => n + x.errors.filter(e => ['javascript','http','network'].includes(e.type)).length, 0)
+    totalErrors: captures.reduce((n, x) => n + x.errors.length, 0)
   };
   await writeFile(join(folder, 'manifest.json'), JSON.stringify(summary, null, 2));
   expect.soft(summary.totalIssues, 'Falhas de layout ou renderização registradas no relatório visual').toBe(0);

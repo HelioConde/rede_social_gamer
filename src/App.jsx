@@ -52,6 +52,7 @@ function Auth({signup=false}){
 }
 function Shell({children}){
   const c=useApp(),[mobile,setMobile]=useState(false),navigate=useNavigate();
+  if(c.mode==='loading')return <main className="loading-screen" role="status">Restaurando sessão…</main>;
   if(!c.user)return <Navigate to="/acesso" replace/>;
   const unread=c.notifications.filter(x=>!x.read).length;
   return <div className="app-shell"><DemoBanner/><header className="topbar"><button className="icon-button mobile-only" type="button" aria-label="Abrir menu" aria-expanded={mobile} onClick={()=>setMobile(!mobile)}>{mobile?<X/>:<Menu/>}</button><Brand/><div className="top-actions"><Link to="/explorar" className="top-search"><Search size={17}/> Buscar jogadores ou jogos</Link><ThemeButton/><Link to="/notificacoes" className="icon-button badge-icon" aria-label={'Notificações, '+unread+' não lidas'}><Bell size={19}/>{unread>0&&<span className="unread-dot"/>}</Link><Link className="user-chip" to="/perfil"><Avatar person={c.profile} size="sm"/><span>{c.profile?.name || c.user?.name}</span></Link></div></header>

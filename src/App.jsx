@@ -34,7 +34,7 @@ function Auth({signup=false}){
     <section className="auth-panel"><div className="auth-panel-top"><ThemeButton/></div><div className="auth-card">
       <div className="auth-icon"><Gamepad2 size={27}/></div><span className="eyebrow">BEM-VINDO AO GAMESOCIAL</span><h2>{signup?'Crie seu perfil':'Entre no seu universo'}</h2><p className="muted">{signup?'Seu próximo squad está te esperando.':'Boas partidas começam com boas conexões.'}</p>
       {c.mode==='loading'?<p role="status">Verificando disponibilidade do serviço…</p>:<>
-        {c.mode==='demo'&&<div className="auth-demo"><strong>Conheça a demonstração</strong><p>Explore feed, perfis e comunidades sem cadastrar dados pessoais.</p><button type="button" className="button primary full" onClick={()=>{c.enterDemo(fields.remember);navigate('/inicio');}}>Entrar na demonstração</button></div>}
+        {c.mode==='demo'&&<div className="auth-demo"><strong>Conheça a demonstração</strong><p>Explore feed, perfis e comunidades sem cadastrar dados pessoais.</p><label className="check-line"><input type="checkbox" name="remember" checked={fields.remember} onChange={change}/> Manter demonstração neste navegador</label><button type="button" className="button primary full" onClick={()=>{c.enterDemo(fields.remember);navigate('/inicio');}}>Entrar na demonstração</button></div>}
         {c.mode==='server'&&<form onSubmit={submit} className="form-stack">
           {signup&&<label>Nome de exibição<input name="name" value={fields.name} maxLength={40} onChange={change} autoComplete="nickname" required placeholder="Como vamos chamar você?"/></label>}
           <label>E-mail<input type="email" name="email" value={fields.email} onChange={change} autoComplete="email" required placeholder="voce@exemplo.com"/></label>

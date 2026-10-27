@@ -30,7 +30,7 @@ A API escuta em http://127.0.0.1:8787 e o frontend encaminha /api para ela. O SQ
 
 ## Publicação no GitHub Pages
 
-O workflow Pages cria um build demonstrativo em https://helioconde.github.io/rede_social_gamer/ após merge na main. Nas configurações do repositório, selecione GitHub Actions como origem do Pages. A API Node não é hospedada pelo Pages.
+O workflow de publicação envia o build demonstrativo à branch gh-pages, que já existe no repositório. O site pode ser acessado em https://helioconde.github.io/rede_social_gamer/ após merge na main. Nas configurações do repositório, selecione Deploy from a branch → gh-pages / (root) como origem do Pages. A API Node não é hospedada pelo Pages.
 
 ## Documentos
 

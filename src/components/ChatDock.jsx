@@ -21,10 +21,15 @@ const dayLabel=iso=>{
 export function ChatDock(){
   const chat=useChat(),[search,setSearch]=useState(''),[filter,setFilter]=useState('all');
   const [drafts,setDrafts]=useState({}),[pendingDelete,setPendingDelete]=useState(null),[resetConfirm,setResetConfirm]=useState(false);
-  const scrollRef=useRef(null),fieldRef=useRef(null),launcherRef=useRef(null),lastConversation=useRef(null),nearEnd=useRef(true);
+  const scrollRef=useRef(null),fieldRef=useRef(null),launcherRef=useRef(null),lastConversation=useRef(null),nearEnd=useRef(true),wasOpened=useRef(false);
   const opened=chat.expanded,active=chat.activePeer,activeId=chat.activeId;
   const draft=drafts[activeId]||'';
   useEffect(()=>{setPendingDelete(null);nearEnd.current=true;},[activeId]);
+  // O lançador volta ao DOM apenas após expanded=false; restaurar foco no efeito.
+  useEffect(()=>{
+    if(wasOpened.current&&!opened)launcherRef.current?.focus();
+    wasOpened.current=opened;
+  },[opened]);
   useEffect(()=>{
     if(!opened||!activeId||!scrollRef.current)return;
     if(lastConversation.current!==activeId||nearEnd.current){
@@ -41,7 +46,6 @@ export function ChatDock(){
       if(pendingDelete!==null){setPendingDelete(null);return;}
       if(resetConfirm){setResetConfirm(false);return;}
       chat.close();
-      launcherRef.current?.focus();
     };
     document.addEventListener('keydown',onKey);
     document.body.classList.add('chat-open');
@@ -72,7 +76,7 @@ export function ChatDock(){
         {active?<><button type="button" className="chat-icon" aria-label="Voltar para conversas" onClick={()=>{chat.openInbox();setPendingDelete(null);}}><ArrowLeft size={19}/></button>
           <Avatar person={active} size="sm"/><div className="chat-head-title"><strong>{active.name}</strong><small>{chat.mode==='demo'?'Conversa fictícia':active.online?'Ativo recentemente':'Mensagem privada'}</small></div></>
         :<><span className="chat-title-icon"><MessagesSquare size={20}/></span><div className="chat-head-title"><strong>Mensagens</strong><small>{chat.mode==='demo'?'Demonstração local':'Conversas privadas'}</small></div>{chat.unread>0&&<span className="chat-unread-header">{chat.unread} não lidas</span>}</>}
-        <button type="button" className="chat-icon" aria-label="Fechar chat" onClick={()=>{chat.close();launcherRef.current?.focus();}}><X size={19}/></button>
+        <button type="button" className="chat-icon" aria-label="Fechar chat" onClick={chat.close}><X size={19}/></button>
       </header>
       {chat.error&&<p className="chat-error" role="alert">{chat.error}<button type="button" onClick={()=>chat.setError('')}>Fechar</button></p>}
       {active?<><div className="chat-messages" ref={scrollRef} aria-label={'Mensagens de '+active.name} role="log" aria-live="polite" aria-relevant="additions text"

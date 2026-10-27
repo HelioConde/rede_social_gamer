@@ -184,3 +184,22 @@ test('mensagens locais corrompidas não quebram a demonstração',async({page})=
  await expect(page.getByText('Mensagem recuperada')).toBeVisible();
  expect(errors).toEqual([]);
 });
+
+test('fechar chat pelo botão ou Escape devolve foco ao lançador',async({page})=>{
+ await enterDemo(page);
+ const launcher=page.getByRole('button',{name:/Abrir mensagens/});
+ await launcher.focus();
+ await page.keyboard.press('Enter');
+ await expect(page.getByRole('dialog',{name:'Mensagens'})).toBeVisible();
+ await page.getByRole('button',{name:'Fechar chat'}).click();
+ await expect(launcher).toBeVisible();
+ await expect(launcher).toBeFocused();
+
+ await page.keyboard.press('Enter');
+ await expect(page.getByRole('dialog',{name:'Mensagens'})).toBeVisible();
+ await page.locator('.chat-contact').filter({hasText:'Luna Pixel'}).click();
+ await expect(page.getByRole('dialog',{name:'Conversa com Luna Pixel'})).toBeVisible();
+ await page.keyboard.press('Escape');
+ await expect(page.getByRole('dialog')).toHaveCount(0);
+ await expect(launcher).toBeFocused();
+});

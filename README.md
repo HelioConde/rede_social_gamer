@@ -43,3 +43,9 @@ Feito por [Hélio Conde](https://github.com/HelioConde).
 ## Novo: mensagens privadas em janela flutuante
 
 O botão **Mensagens** abre um painel no canto inferior direito (desktop) ou em tela cheia (mobile). Há pesquisa, conversas, indicador de não lidas e envio. Na demo do GitHub Pages, conversas e histórico são **fictícios e locais**; a API Node inclui endpoints de mensagens privadas entre usuários autenticados, atualizados por consultas periódicas. Consulte [docs/CHAT.md](docs/CHAT.md).
+
+## Resiliência do chat e publicação após QA
+
+O painel de mensagens devolve o foco ao botão flutuante quando é fechado por Escape ou pelo botão de fechar, permitindo reabertura com Enter sem perder o ponto da navegação. O Playwright verifica essas interações nas resoluções definidas.
+
+A publicação `gh-pages` agora é iniciada após **QA GameSocial** aprovar o mesmo commit na `main`, incluindo testes do frontend e da API experimental. O build enviado permanece exclusivamente demonstrativo (sem servidor, banco ou contas reais). O workflow manual de publicação continua disponível para manutenção.

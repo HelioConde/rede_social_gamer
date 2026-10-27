@@ -22,12 +22,30 @@ jobs:
           GITHUB_PAGES: 'true'
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+      - name: Capturar telas completas e diagnosticar JS/layout
+        id: visual
+        shell: bash
+        run: |
+          set +e
+          npm run test:visual
+          status=$?
+          npm run report:visual
+          report_status=$?
+          if [ -f visual-audit/summary.md ]; then
+            cat visual-audit/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ "$status" -ne 0 ]; then exit "$status"; fi
+          exit "$report_status"
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
-          name: playwright-results
-          path: test-results/
-          retention-days: 7
+          name: gamesocial-auditoria-visual
+          path: |
+            visual-audit/
+            test-results/
+          retention-days: 14
+          if-no-files-found: warn
+
   backend:
     runs-on: ubuntu-latest
     steps:

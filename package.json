@@ -9,8 +9,10 @@
     "preview": "vite preview --host 0.0.0.0",
     "lint": "eslint src vite.config.js playwright.config.js tests",
     "test": "vitest run",
-    "test:e2e": "playwright test",
-    "check": "npm run lint && npm test && npm run build"
+    "test:e2e": "playwright test tests/e2e/social.spec.js",
+    "check": "npm run lint && npm test && npm run build",
+    "test:visual": "playwright test tests/e2e/visual-audit.spec.js",
+    "report:visual": "node scripts/generate-visual-report.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

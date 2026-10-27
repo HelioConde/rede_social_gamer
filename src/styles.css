@@ -74,3 +74,6 @@ h1{font-size:clamp(27px,3vw,35px);letter-spacing:-.04em}h2{font-size:19px;letter
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 
 .auth-demo .check-line{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:12px;margin-bottom:14px}
+
+/* 320px: não esconder horário/identificador da publicação atrás de reticências. */
+@media(max-width:500px){.post-author small{white-space:normal;text-overflow:clip;overflow:visible;max-width:none;line-height:1.35}.post-author>span:last-child{min-width:0;overflow-wrap:anywhere}}

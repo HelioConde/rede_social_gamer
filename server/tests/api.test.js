@@ -27,6 +27,7 @@ test('senha inválida é rejeitada',async()=>{
  const login=await call('/login','POST',{email:'unknown@example.com',password:'fake12345'});assert.equal(login.status,401);
 });
 
+let sharedChatAccounts;
 test('mensagens privadas: envio, leitura, isolamento e bloqueio',async()=>{
  const register=async(name)=>{
   const r=await call('/register','POST',{name,email:'chat_'+randomUUID()+'@example.com',password:'senha-forte-123'});
@@ -34,6 +35,7 @@ test('mensagens privadas: envio, leitura, isolamento e bloqueio',async()=>{
   return {id:r.data.user.id,cookie:r.cookie};
  };
  const alex=await register('Teste Alex'),bia=await register('Teste Bia'),intruso=await register('Teste Intruso');
+ sharedChatAccounts={a:alex,b:intruso,c:bia};
  const denied=await call('/chats','GET');assert.equal(denied.status,401);
  const missing=await call('/chats/'+alex.id+'/messages','POST',{text:'Oi!'},alex.cookie);
  assert.equal(missing.status,404);
@@ -61,12 +63,7 @@ test('mensagens privadas: envio, leitura, isolamento e bloqueio',async()=>{
 });
 
 test('somente o remetente pode excluir uma mensagem privada',async()=>{
- const register=async()=>{
-  const r=await call('/register','POST',{name:'Pessoa DM',email:'dm_'+randomUUID()+'@example.com',password:'senha-forte-123'});
-  assert.equal(r.status,201);
-  return {id:r.data.user.id,cookie:r.cookie};
- };
- const a=await register(),b=await register(),c=await register();
+ const {a,b,c}=sharedChatAccounts;
  const send=await call('/chats/'+b.id+'/messages','POST',{text:'mensagem a ser apagada'},a.cookie);
  assert.equal(send.status,201);
  const id=send.data.message.id;
